@@ -1,22 +1,49 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { React, useEffect, useState } from 'react'
 import externalStyles from './styles'
 
 const Quiz = ({ navigation }) => {
+  const url = "https://opentdb.com/api.php?amount=10&type=multiple&encode=url3986";
+  const [question, setQuestion] = useState("")
+  const [qno, setQno] = useState(0)
+  const [answers, setAnswers] = useState([])
+
+  const getQuiz = async () => {
+    const res = await fetch(url)
+    const data = await res.json()
+    console.log((data['results'][qno]["incorrect_answers"]))
+    setAnswers([...data['results'][qno]["incorrect_answers"], data['results'][qno]["correct_answer"]])
+    setQuestion(decodeURIComponent(data['results'][qno]['question']))
+  }
+
+  useEffect(() => {
+    getQuiz()
+  }, [])
+
+  const handleNextClick = () => {
+    if (qno !== 9) {
+      setQno(prev => prev + 1)
+      getQuiz()
+    }
+  }
   return (
     <View style={styles.container}>
-      <View style={styles.top}>
-        <Text style={styles.question}>Q. Imagine this is a cool Question.</Text>
-      </View>
-      <View style={styles.options}>
-        <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>Cool option 1</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>Cool option 2</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>Cool option 3</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>Cool option 4</Text></TouchableOpacity>
-      </View>
-      <View style={styles.bottom}>
-        <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => navigation.navigate('Result')}><Text style={externalStyles.buttonText}>SKIP</Text></TouchableOpacity>
-      </View>
+      {question && <View style={{ height: "100%" }}>
+        <View style={styles.top}>
+          <Text style={styles.question}>{question}</Text>
+        </View>
+        <View style={styles.options}>
+          <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>{decodeURIComponent(answers[0])}</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>{decodeURIComponent(answers[1])}</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>{decodeURIComponent(answers[2])}</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>{decodeURIComponent(answers[3])}</Text></TouchableOpacity>
+        </View>
+        <View style={styles.bottom}>
+          {(qno === 9) ? <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => navigation.navigate('Result')}><Text style={externalStyles.buttonText}>END</Text></TouchableOpacity> : <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => handleNextClick()}><Text style={externalStyles.buttonText}>SKIP</Text></TouchableOpacity>}
+
+          {/* <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => navigation.navigate('Result')}><Text style={externalStyles.buttonText}>SKIP</Text></TouchableOpacity> */}
+        </View>
+      </View>}
     </View>
 
   )
