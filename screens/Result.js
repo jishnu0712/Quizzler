@@ -3,11 +3,13 @@ import React from 'react'
 import styles from './styles';
 import Title from '../components/Title';
 
-const Result = ({ navigation }) => {
+const Result = ({ route, navigation }) => {
+  const { score } = route.params
   return (
     <View style={styles.container}>
       <View style={styles.top}>
-        <Title titleText="Result"/>
+        <Title titleText="Result" />
+        <Title titleText={score} />
         <View style={[styles.bannerContainer, { flex: 1 }]}>
           <Image
             // source={require("./hi.png")}

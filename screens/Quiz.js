@@ -1,19 +1,22 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { React, useEffect, useState } from 'react'
 import externalStyles from './styles'
+import Option from '../components/option';
 
 const Quiz = ({ navigation }) => {
   const url = "https://opentdb.com/api.php?amount=10&type=multiple&encode=url3986";
   const [question, setQuestion] = useState("")
   const [qno, setQno] = useState(0)
   const [answers, setAnswers] = useState([])
+  const [score, setScore] = useState(0)
+  const [correctAnswer, setCorrectAnswer] = useState("")
 
   const getQuiz = async () => {
     const res = await fetch(url)
     const data = await res.json()
-    console.log((data['results'][qno]["incorrect_answers"]))
     setAnswers([...data['results'][qno]["incorrect_answers"], data['results'][qno]["correct_answer"]])
     setQuestion(decodeURIComponent(data['results'][qno]['question']))
+    setCorrectAnswer(decodeURIComponent(data['results'][qno]["correct_answer"]))
   }
 
   useEffect(() => {
@@ -26,6 +29,14 @@ const Quiz = ({ navigation }) => {
       getQuiz()
     }
   }
+
+  const handleOptionClick = (_clickedAnswer) => {
+    if (_clickedAnswer === correctAnswer) {
+      setScore(prev => prev + 10)
+    }
+    handleNextClick()
+    console.log(score);
+  }
   return (
     <View style={styles.container}>
       {question && <View style={{ height: "100%" }}>
@@ -33,15 +44,25 @@ const Quiz = ({ navigation }) => {
           <Text style={styles.question}>{question}</Text>
         </View>
         <View style={styles.options}>
-          <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>{decodeURIComponent(answers[0])}</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>{decodeURIComponent(answers[1])}</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>{decodeURIComponent(answers[2])}</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.optionButton}><Text style={styles.option}>{decodeURIComponent(answers[3])}</Text></TouchableOpacity>
+        
+          <TouchableOpacity style={styles.optionButton}
+            onPress={() => handleOptionClick(decodeURIComponent(answers[0]))}>
+            <Option text={answers[0]}/></TouchableOpacity>
+          <TouchableOpacity style={styles.optionButton}
+            onPress={() => handleOptionClick(decodeURIComponent(answers[1]))}>
+            <Option text={answers[1]}/></TouchableOpacity>
+          <TouchableOpacity style={styles.optionButton}
+            onPress={() => handleOptionClick(decodeURIComponent(answers[2]))}>
+            <Option text={answers[2]}/></TouchableOpacity>
+          <TouchableOpacity style={styles.optionButton}
+            onPress={() => handleOptionClick(decodeURIComponent(answers[3]))}>
+            <Option text={answers[3]}/></TouchableOpacity>
         </View>
         <View style={styles.bottom}>
-          {(qno === 9) ? <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => navigation.navigate('Result')}><Text style={externalStyles.buttonText}>END</Text></TouchableOpacity> : <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => handleNextClick()}><Text style={externalStyles.buttonText}>SKIP</Text></TouchableOpacity>}
+          {(qno === 9) ? <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => navigation.navigate('Result', {
+            score: score
+          })}><Text style={externalStyles.buttonText}>END</Text></TouchableOpacity> : <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => handleNextClick()}><Text style={externalStyles.buttonText}>SKIP</Text></TouchableOpacity>}
 
-          {/* <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => navigation.navigate('Result')}><Text style={externalStyles.buttonText}>SKIP</Text></TouchableOpacity> */}
         </View>
       </View>}
     </View>
@@ -61,11 +82,6 @@ const styles = StyleSheet.create({
   question: {
     fontSize: 28,
     fontWeight: "bold"
-  },
-  option: {
-    fontSize: 20,
-    fontWeight: "400",
-    color: "white",
   },
   options: { marginVertical: 16, flex: 1 },
   optionButton: {
