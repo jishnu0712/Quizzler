@@ -14,7 +14,7 @@ export default Option
 const styles = StyleSheet.create({
   option: {
     fontSize: 20,
-    fontWeight: "400",
-    color: "black",
+    fontWeight: "600",
+    color: "white",
   },
 })

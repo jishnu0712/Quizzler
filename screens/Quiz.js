@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { React, useEffect, useState } from 'react'
 import externalStyles from './styles'
-import Option from '../components/option';
+import Option from '../components/Option';
 
 const Quiz = ({ navigation }) => {
   const url = "https://opentdb.com/api.php?amount=10&type=multiple&encode=url3986";
@@ -28,12 +28,18 @@ const Quiz = ({ navigation }) => {
       setQno(prev => prev + 1)
       getQuiz()
     }
+    // logic for last question. need to go to results
+    if (qno === 9) {
+      navigation.navigate("Result", { score: score })
+    }
   }
 
   const handleOptionClick = (_clickedAnswer) => {
     if (_clickedAnswer === correctAnswer) {
       setScore(prev => prev + 10)
     }
+    console.log(score);
+
     handleNextClick()
     console.log(score);
   }
@@ -44,24 +50,26 @@ const Quiz = ({ navigation }) => {
           <Text style={styles.question}>{question}</Text>
         </View>
         <View style={styles.options}>
-        
+
           <TouchableOpacity style={styles.optionButton}
             onPress={() => handleOptionClick(decodeURIComponent(answers[0]))}>
-            <Option text={answers[0]}/></TouchableOpacity>
+            <Option text={answers[0]} /></TouchableOpacity>
           <TouchableOpacity style={styles.optionButton}
             onPress={() => handleOptionClick(decodeURIComponent(answers[1]))}>
-            <Option text={answers[1]}/></TouchableOpacity>
+            <Option text={answers[1]} /></TouchableOpacity>
           <TouchableOpacity style={styles.optionButton}
             onPress={() => handleOptionClick(decodeURIComponent(answers[2]))}>
-            <Option text={answers[2]}/></TouchableOpacity>
+            <Option text={answers[2]} /></TouchableOpacity>
           <TouchableOpacity style={styles.optionButton}
             onPress={() => handleOptionClick(decodeURIComponent(answers[3]))}>
-            <Option text={answers[3]}/></TouchableOpacity>
+            <Option text={answers[3]} /></TouchableOpacity>
         </View>
         <View style={styles.bottom}>
           {(qno === 9) ? <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => navigation.navigate('Result', {
             score: score
-          })}><Text style={externalStyles.buttonText}>END</Text></TouchableOpacity> : <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }} onPress={() => handleNextClick()}><Text style={externalStyles.buttonText}>SKIP</Text></TouchableOpacity>}
+          })}><Text style={externalStyles.buttonText}>END</Text></TouchableOpacity>
+            : <TouchableOpacity style={{ ...externalStyles.button, width: "25%" }}
+              onPress={() => handleNextClick()}><Text style={externalStyles.buttonText}>SKIP</Text></TouchableOpacity>}
 
         </View>
       </View>}
